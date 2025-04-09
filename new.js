@@ -3,19 +3,17 @@ const express = require('express');
 
 const app = express();
 const PORT = 8080;
+
 const MONDAY_API_URL = 'https://api.monday.com/v2';
-const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjQ5Nzc1OTMwNSwiYWFpIjoxMSwidWlkIjoyNjUxNTg3MiwiaWFkIjoiMjAyNS0wNC0wOVQxNDo0MTowNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6ODQ3MzgwMiwicmduIjoidXNlMSJ9.4YHlfa0zYG9hCez1omC6CSbDIbburhlnIwpSUXaw0FE'; // Replace with your API key
+const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjQ5Nzc1OTMwNSwiYWFpIjoxMSwidWlkIjoyNjUxNTg3MiwiaWFkIjoiMjAyNS0wNC0wOVQxNDo0MTowNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6ODQ3MzgwMiwicmduIjoidXNlMSJ9.4YHlfa0zYG9hCez1omC6CSbDIbburhlnIwpSUXaw0FE';
 
 const boardId = 8896263752;
 const itemId = 8896263883;
-const statusColumnId = 'status'; // Replace with your status column ID
-const dateColumnId = 'date4';     // Replace with your date column ID
-
-
+const statusColumnId = 'status';
+const dateColumnId = 'date4';
 
 const checkStatusAndUpdateDate = async () => {
   try {
-    // Step 1: Get status value
     const statusQuery = `
       query {
         items(ids: ${itemId}) {
@@ -36,9 +34,8 @@ const checkStatusAndUpdateDate = async () => {
 
     const status = response.data.data.items[0].column_values[0].text;
 
-    // Step 2: If status is "Done", update date column
     if (status === 'Done') {
-      const today = new Date().toISOString().split('T')[0]; // e.g., "2025-04-09"
+      const today = new Date().toISOString().split('T')[0];
       const mutation = `
         mutation {
           change_column_value(
@@ -60,22 +57,29 @@ const checkStatusAndUpdateDate = async () => {
       });
 
       console.log('✅ Date column updated successfully!');
+      return '✅ Date column updated successfully!';
     } else {
       console.log(`ℹ️ Status is "${status}", not "Done".`);
+      return `ℹ️ Status is "${status}", not "Done".`;
     }
   } catch (error) {
     console.error('❌ Error:', error.response?.data || error.message);
+    return `❌ Error: ${error.response?.data || error.message}`;
   }
 };
 
-checkStatusAndUpdateDate();
-
-
-app.get('/', async (req, res) => {
-  const result = await checkStatusAndUpdateDate();
-  res.send(`✅ Server is running on port 8080\nResult: ${result}`);
+// Root path to check server
+app.get('/', (req, res) => {
+  res.send('✅ Server is running on port 8080');
 });
 
+// New /GetDate route to trigger status check and date update
+app.get('/GetDate', async (req, res) => {
+  const result = await checkStatusAndUpdateDate();
+  res.send(result);
+});
+
+// Start the server
 app.listen(PORT, () => {
   console.log(`🚀 Listening at http://localhost:${PORT}`);
 });
