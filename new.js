@@ -69,3 +69,13 @@ const checkStatusAndUpdateDate = async () => {
 };
 
 checkStatusAndUpdateDate();
+
+
+app.get('/', async (req, res) => {
+  const result = await checkStatusAndUpdateDate();
+  res.send(`✅ Server is running on port 8080\nResult: ${result}`);
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Listening at http://localhost:${PORT}`);
+});
