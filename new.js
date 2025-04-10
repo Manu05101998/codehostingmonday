@@ -92,6 +92,12 @@ app.get('/GetDate', async (req, res) => {
   res.send(result);
 });
 
+app.get('/health', (req, res) => {
+    logger.info('GET request at /health');
+    res.status(200).send('OK');
+  });
+  
+
 // 🔥 Start the server
 app.listen(PORT, () => {
   logger.info(`🚀 Listening at http://localhost:${PORT}`);
