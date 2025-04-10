@@ -6,7 +6,7 @@ const app = express();
 const PORT = 8080;
 
 const MONDAY_API_URL = 'https://api.monday.com/v2';
-const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjQ5Nzc1OTMwNSwiYWFpIjoxMSwidWlkIjoyNjUxNTg3MiwiaWFkIjoiMjAyNS0wNC0wOVQxNDo0MTowNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6ODQ3MzgwMiwicmduIjoidXNlMSJ9.4YHlfa0zYG9hCez1omC6CSbDIbburhlnIwpSUXaw0FE'; // Truncated for safety
+const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjQ5Nzc1OTMwNSwiYWFpIjoxMSwidWlkIjoyNjUxNTg3MiwiaWFkIjoiMjAyNS0wNC0wOVQxNDo0MTowNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6ODQ3MzgwMiwicmduIjoidXNlMSJ9.4YHlfa0zYG9hCez1omC6CSbDIbburhlnIwpSUXaw0FE'
 
 const boardId = 8896263752;
 const itemId = 8896263883;
@@ -91,6 +91,12 @@ app.get('/GetDate', async (req, res) => {
   const result = await checkStatusAndUpdateDate();
   res.send(result);
 });
+
+app.post('/GetDate', async (req, res) => {
+    logger.info('POST request at /GetDate');
+    const result = await checkStatusAndUpdateDate();
+    res.send(result);
+  });
 
 app.get('/health', (req, res) => {
     logger.info('GET request at /health');
