@@ -1,19 +1,26 @@
-const axios = require('axios');
-const express = require('express');
+import express from 'express';
+import axios from 'axios';
+import { Logger } from '@mondaycom/apps-sdk';
 
 const app = express();
 const PORT = 8080;
 
 const MONDAY_API_URL = 'https://api.monday.com/v2';
-const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjQ5Nzc1OTMwNSwiYWFpIjoxMSwidWlkIjoyNjUxNTg3MiwiaWFkIjoiMjAyNS0wNC0wOVQxNDo0MTowNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6ODQ3MzgwMiwicmduIjoidXNlMSJ9.4YHlfa0zYG9hCez1omC6CSbDIbburhlnIwpSUXaw0FE';
+const API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjQ5Nzc1OTMwNSwiYWFpIjoxMSwidWlkIjoyNjUxNTg3MiwiaWFkIjoiMjAyNS0wNC0wOVQxNDo0MTowNy4wMDBaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6ODQ3MzgwMiwicmduIjoidXNlMSJ9.4YHlfa0zYG9hCez1omC6CSbDIbburhlnIwpSUXaw0FE'; // Truncated for safety
 
 const boardId = 8896263752;
 const itemId = 8896263883;
 const statusColumnId = 'status';
 const dateColumnId = 'date4';
 
+// 🔸 Initialize logger
+const logger = new Logger('app-check-status');
+
+// 🔄 Function to check status and update date
 const checkStatusAndUpdateDate = async () => {
   try {
+    logger.info('Starting checkStatusAndUpdateDate...');
+
     const statusQuery = `
       query {
         items(ids: ${itemId}) {
@@ -33,9 +40,12 @@ const checkStatusAndUpdateDate = async () => {
     });
 
     const status = response.data.data.items[0].column_values[0].text;
+    logger.info(`Fetched status: ${status}`);
 
     if (status === 'Done') {
       const today = new Date().toISOString().split('T')[0];
+      logger.info(`Status is 'Done'. Updating date to: ${today}`);
+
       const mutation = `
         mutation {
           change_column_value(
@@ -56,30 +66,33 @@ const checkStatusAndUpdateDate = async () => {
         }
       });
 
-      console.log('✅ Date column updated successfully!');
+      logger.info('✅ Date column updated successfully!');
       return '✅ Date column updated successfully!';
     } else {
-      console.log(`ℹ️ Status is "${status}", not "Done".`);
+      logger.warn(`Status is not 'Done' — it's "${status}".`);
       return `ℹ️ Status is "${status}", not "Done".`;
     }
+
   } catch (error) {
-    console.error('❌ Error:', error.response?.data || error.message);
+    logger.error('❌ Error while processing:', { error });
     return `❌ Error: ${error.response?.data || error.message}`;
   }
 };
 
-// Root path to check server
+// ✅ Root path to check if server is running
 app.get('/', (req, res) => {
+  logger.info('GET request at root "/"');
   res.send('✅ Server is running on port 8080');
 });
 
-// New /GetDate route to trigger status check and date update
+// ✅ New route to trigger logic
 app.get('/GetDate', async (req, res) => {
+  logger.info('GET request at /GetDate');
   const result = await checkStatusAndUpdateDate();
   res.send(result);
 });
 
-// Start the server
+// 🔥 Start the server
 app.listen(PORT, () => {
-  console.log(`🚀 Listening at http://localhost:${PORT}`);
+  logger.info(`🚀 Listening at http://localhost:${PORT}`);
 });
