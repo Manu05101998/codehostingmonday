@@ -2,15 +2,15 @@
   "name": "package",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "new.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-          "start": "node new.js"
-
+    "start": "node new.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@mondaycom/apps-sdk": "^3.2.1",
     "axios": "^1.8.4",
     "express": "^5.1.0"
   }
